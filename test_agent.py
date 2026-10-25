@@ -38,6 +38,30 @@ def test_protocol_auth_card_and_limit(tmp_path,monkeypatch):
     malformed={"message":{"messageId":"bad","role":"ROLE_USER","parts":[None]}}
     assert client.post("/a2a/message:send",headers=h,json=malformed).status_code==400
 
+@pytest.mark.parametrize("scheme",["Bearer","bearer","BEARER","bEaReR"])
+def test_task_list_accepts_case_insensitive_bearer_scheme(tmp_path,monkeypatch,scheme):
+    client,h=setup_client(tmp_path,monkeypatch)
+    headers={**h,"Authorization":f"{scheme} secret-test-token"}
+    assert client.get("/a2a/tasks",headers=headers).status_code==200
+
+@pytest.mark.parametrize("authorization",[None,"", "Basic secret-test-token", "Bearer", "Bearer wrong-token", "Bearer secret-test-token extra"])
+def test_task_list_rejects_missing_or_invalid_bearer_credentials(tmp_path,monkeypatch,authorization):
+    client,h=setup_client(tmp_path,monkeypatch)
+    headers={**h}
+    if authorization is None:
+        headers.pop("Authorization")
+    else:
+        headers["Authorization"]=authorization
+    assert client.get("/a2a/tasks",headers=headers).status_code==401
+
+def test_bearer_parser_allows_surrounding_header_whitespace_without_trimming_token(monkeypatch):
+    monkeypatch.setattr(main,"API_TOKEN","secret-test-token")
+    monkeypatch.setattr(main,"TOKEN_PRINCIPALS",{})
+    principal=main.authenticated_principal("  bEaReR\tsecret-test-token  ")
+    assert principal is not None
+    assert main.authenticated_principal("Bearer secret-test-token ") == principal
+    assert main.authenticated_principal("Bearer secret-test-token\textra") is None
+
 def test_idempotency_isolation_and_cancel_terminal(tmp_path,monkeypatch):
     client,h=setup_client(tmp_path,monkeypatch)
     r=client.post("/a2a/message:send",headers=h,json=initial())

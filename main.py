@@ -57,7 +57,11 @@ def a2a_json(payload, status=200):
     return response
 
 def authenticated_principal(authorization):
-    token=authorization[7:] if isinstance(authorization,str) and authorization.startswith("Bearer ") else ""
+    # HTTP authentication scheme names are case-insensitive. Accept ordinary
+    # optional whitespace around the scheme/credentials, while keeping the
+    # credential itself exact for constant policy/token lookup semantics.
+    parts=authorization.strip().split() if isinstance(authorization,str) else []
+    token=parts[1] if len(parts)==2 and parts[0].lower()=="bearer" else ""
     if token in TOKEN_PRINCIPALS and isinstance(TOKEN_PRINCIPALS[token],str): return hashlib.sha256(token.encode()).hexdigest()
     if API_TOKEN and token==API_TOKEN: return hashlib.sha256(token.encode()).hexdigest()
     return None
