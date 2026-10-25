@@ -1,0 +1,17 @@
+services:
+  invoice-agent:
+    build: .
+    ports:
+      - "127.0.0.1:8001:8000"
+    environment:
+      APP_ENV: production
+      A2A_BEARER_TOKEN: ${A2A_BEARER_TOKEN:?set a strong token in deployment environment}
+      A2A_BEARER_TOKENS: ${A2A_BEARER_TOKENS:-}
+      A2A_BASE_URL: ${A2A_BASE_URL:?set the public HTTPS A2A base URL}
+      GROQ_API_KEY: ${GROQ_API_KEY:?configure Groq secret}
+      A2A_DB_PATH: /data/invoice_agent.db
+    volumes:
+      - invoice-data:/data
+    restart: unless-stopped
+volumes:
+  invoice-data:

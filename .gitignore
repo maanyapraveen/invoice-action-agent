@@ -1,0 +1,50 @@
+# Python environments and generated files
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Environment variables and credentials
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+credentials*
+secrets*
+.npmrc
+.pypirc
+.netrc
+.aws/
+.codex/
+
+# Local databases and runtime state
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+instance/
+logs/
+*.log
+
+# Local tooling / OS files
+.coverage
+htmlcov/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
